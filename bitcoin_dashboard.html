@@ -42,7 +42,7 @@
 
   /* ── Navbar ────────────────────────────────────────────── */
   nav {
-    position: fixed; top:38px; left:0; right:0; z-index:100;
+    position: fixed; top:0; left:0; right:0; z-index:100;
     background: rgba(13,17,23,0.92);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
@@ -66,7 +66,7 @@
   nav a:hover { color:var(--text); background:var(--surface2); text-decoration:none; }
 
   /* ── Layout ────────────────────────────────────────────── */
-  main { padding-top: 100px; }
+  main { padding-top: 62px; }
   .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
   section { padding: 64px 0; }
   section + section { border-top: 1px solid var(--border); }
@@ -313,16 +313,6 @@
 <!-- ══════════════════════════════════════════════════════════
      NAVBAR
 ════════════════════════════════════════════════════════════ -->
-<div class="team-banner">
-  <span class="tb-label">&#8383; Equipo</span>
-  <div class="tb-names">
-    <span class="tb-name"><strong>Favio Alejandro</strong> Bernal González</span>
-    <span class="tb-name"><strong>Luisa María</strong> López Rigeles</span>
-    <span class="tb-name"><strong>Carlos Andrés</strong> Lamus Gómez</span>
-    <span class="tb-name"><strong>Kevin Santiago</strong> Cachaya Collazos</span>
-    <span class="tb-name"><strong>Juan Esteban</strong> Roncancio Cárdenas</span>
-  </div>
-</div>
 <nav>
   <div class="nav-brand"><span>₿</span> BTC Dashboard</div>
   <a href="#dataset">Dataset</a>
@@ -631,7 +621,7 @@ print(corr.round(3))</code></pre>
           <h3 class="fw-600" style="font-size:.95rem">Preprocesamiento Aplicado <span style="color:var(--muted);font-weight:400">(Semanas 3–4)</span></h3>
         </div>
         <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
-          Se aplicaron las técnicas del curso: <strong style="color:var(--text)">eliminación de duplicados</strong> (0 encontrados), <strong style="color:var(--text)">validación de formatos</strong> de fecha y precio, <strong style="color:var(--text)">manejo de datos faltantes</strong> (1 nulo en <code>rendimiento_vs_anterior</code> del primer registro — esperado y documentado), <strong style="color:var(--text)">escalado implícito</strong> en los retornos porcentuales, e <strong style="color:var(--text)">ingeniería de características</strong> generando <strong style="color:var(--orange)">12 variables derivadas</strong> a partir de fecha y precio: año, trimestre, mes, nombre_mes, dia, dia_semana, nombre_dia, semana_año, rendimiento_diario, volatilidad_diaria, rango_cuerpo, direccion.
+          Se aplicaron: <strong style="color:var(--text)">eliminación de duplicados</strong> (0 encontrados), <strong style="color:var(--text)">validación de formatos</strong>, <strong style="color:var(--text)">manejo del único nulo</strong> en <code>rendimiento_vs_anterior</code> e <strong style="color:var(--text)">ingeniería de características</strong> generando <strong style="color:var(--orange)">12 variables derivadas</strong> a partir de fecha y precio.
         </p>
       </div>
 
@@ -642,7 +632,7 @@ print(corr.round(3))</code></pre>
           <h3 class="fw-600" style="font-size:.95rem">Análisis Estadístico Descriptivo</h3>
         </div>
         <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
-          Se calcularon <strong style="color:var(--text)">medidas de tendencia central</strong> (media rendimiento diario: +0.13%, mediana ≈ 0%), <strong style="color:var(--text)">medidas de dispersión</strong> (σ = 3.24%), <strong style="color:var(--text)">coeficiente de asimetría negativo</strong> (cola izquierda más pesada: mínimo −37.19%) y <strong style="color:var(--text)">curtosis positiva</strong> (distribución leptocúrtica — colas más pesadas que la normal, visible en el histograma KDE). Se aplicó <strong style="color:var(--text)">detección de outliers vía IQR</strong> y visualización con boxplot por año, identificando años de alta dispersión (2020–2021) y alta frecuencia de outliers negativos (2022).
+          Se calcularon media (+0.13%), σ = 3.24%, <strong style="color:var(--text)">asimetría negativa</strong> (mínimo −37.19%) y <strong style="color:var(--text)">curtosis positiva</strong> (distribución leptocúrtica — fat tails). Se aplicó detección de outliers vía IQR; 2020–2021 presentan mayor dispersión y 2022 la mayor concentración de extremos negativos.
         </p>
       </div>
 
@@ -653,7 +643,7 @@ print(corr.round(3))</code></pre>
           <h3 class="fw-600" style="font-size:.95rem">Minería de Series de Tiempo</h3>
         </div>
         <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
-          El dataset Bitcoin es una <strong style="color:var(--text)">serie de tiempo financiera</strong> con cuatro componentes identificados: <strong style="color:var(--text)">Tendencia</strong> (crecimiento secular del precio de $3,236 a $124,752), <strong style="color:var(--text)">Ciclos</strong> (bull/bear markets ~2 años ligados a halvings), <strong style="color:var(--text)">Estacionalidad</strong> (patrones por mes y día de semana estadísticamente identificados) e <strong style="color:var(--text)">Irregulares</strong> (crashes como COVID marzo 2020, colapso Terra/Luna mayo 2022, quiebra FTX noviembre 2022). Las <strong style="color:var(--text)">medias móviles MA7 y MA30</strong> actúan como técnica de suavizamiento y generación de señales de trading.
+          Serie de tiempo con cuatro componentes: <strong style="color:var(--text)">Tendencia</strong> (de $3,236 a $124,752), <strong style="color:var(--text)">Ciclos</strong> bull/bear ~2 años ligados a halvings, <strong style="color:var(--text)">Estacionalidad</strong> mensual/semanal e <strong style="color:var(--text)">Irregulares</strong> (COVID 2020, Terra/Luna 2022, FTX 2022). Las MA7 y MA30 actúan como suavizamiento y generación de señales.
         </p>
       </div>
 
@@ -665,7 +655,7 @@ print(corr.round(3))</code></pre>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:.83rem">
           <div>
-            <p style="color:var(--muted);line-height:1.75">Se analizó la <strong style="color:var(--text)">correlación de Pearson</strong> entre las variables numéricas del dataset, aplicando los conceptos del curso. La correlación <strong style="color:var(--text)">volumen ↔ volatilidad (r = 0.44)</strong> y <strong style="color:var(--text)">precio ↔ volumen (r = 0.54)</strong> muestran relaciones positivas moderadas. El scatter plot volumen vs volatilidad evidencia relación positiva con outliers en eventos extremos.</p>
+            <p style="color:var(--muted);line-height:1.75">Correlación de Pearson entre variables numéricas: <strong style="color:var(--text)">volumen ↔ volatilidad (r = 0.44)</strong> y <strong style="color:var(--text)">precio ↔ volumen (r = 0.54)</strong> muestran relaciones positivas moderadas. El scatter volumen vs volatilidad confirma la relación con outliers en eventos extremos.</p>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
@@ -939,7 +929,7 @@ print(corr.round(3))</code></pre>
           <div class="dc-title">Decisión de Entrada</div>
           <span class="dc-badge badge-buy">COMPRA</span>
         </div>
-        <p>La señal actual de cruce de medias móviles es <strong style="color:var(--green)">COMPRA (Golden Cross)</strong> — MA7 ($79,939) supera a MA30 ($76,662). Históricamente este patrón en 2019, 2020 y 2023 precedió rallies de semanas a meses. El precio actual ($80,186) se ubica por encima de ambas medias, confirmando tendencia alcista de corto y medio plazo. <strong style="color:var(--text)">Acción: considerar entrada escalonada en correcciones hacia el soporte de MA30.</strong></p>
+        <p>Golden Cross activo: MA7 ($79,939) supera MA30 ($76,662) — patrón que en 2019, 2020 y 2023 precedió rallies sostenidos. <strong style="color:var(--text)">Acción: entrada escalonada en correcciones hacia el soporte de MA30.</strong></p>
       </div>
 
       <div class="decision-card dc-risk">
@@ -948,7 +938,7 @@ print(corr.round(3))</code></pre>
           <div class="dc-title">Gestión del Riesgo</div>
           <span class="dc-badge badge-risk">CRÍTICO</span>
         </div>
-        <p>La distribución de retornos es leptocúrtica con cola izquierda hasta <strong style="color:var(--red)">−37%</strong>. Los modelos VaR gaussianos subestiman el riesgo real. En 2022 Bitcoin cayó un 70% desde máximos. <strong style="color:var(--text)">Acción: nunca invertir más del 5–10% del portafolio total en un activo de esta volatilidad (4.13% diario promedio). Establecer stop-loss en ruptura de MA30.</strong></p>
+        <p>Distribución leptocúrtica con cola izquierda hasta <strong style="color:var(--red)">−37%</strong>; en 2022 el activo cayó 70% desde máximos. <strong style="color:var(--text)">Acción: limitar exposición al 5–10% del portafolio y establecer stop-loss en ruptura de MA30.</strong></p>
       </div>
 
       <div class="decision-card dc-time">
@@ -957,7 +947,7 @@ print(corr.round(3))</code></pre>
           <div class="dc-title">Timing por Estacionalidad</div>
           <span class="dc-badge badge-time">ESTACIONAL</span>
         </div>
-        <p>El análisis de rendimientos promedio por mes revela patrones repetibles: <strong style="color:var(--green)">febrero, marzo y octubre</strong> son históricamente los meses más rentables. <strong style="color:var(--red)">Junio y agosto</strong> tienden a ser negativos ("crypto summer dip"). <strong style="color:var(--text)">Acción: ponderar entradas en enero-febrero y reducir exposición en mayo-junio para aprovechar la estacionalidad.</strong></p>
+        <p><strong style="color:var(--green)">Febrero, marzo y octubre</strong> son los meses históricamente más rentables; <strong style="color:var(--red)">junio y agosto</strong> tienden a ser negativos. <strong style="color:var(--text)">Acción: ponderar entradas en enero-febrero y reducir exposición en mayo-junio.</strong></p>
       </div>
 
       <div class="decision-card dc-wait">
@@ -966,7 +956,7 @@ print(corr.round(3))</code></pre>
           <div class="dc-title">Monitoreo de Volatilidad</div>
           <span class="dc-badge badge-wait">ALERTA</span>
         </div>
-        <p>La volatilidad promedio es 4.13% diaria pero puede alcanzar picos de <strong style="color:var(--red)">38.78%</strong> en eventos extremos. Los fines de semana concentran mayor volatilidad con menor volumen de soporte — mayor riesgo de movimientos manipulados. <strong style="color:var(--text)">Acción: evitar órdenes de mercado grandes en fines de semana y usar límites de precio en todos los trades.</strong></p>
+        <p>Volatilidad promedio 4.13% diaria con picos de <strong style="color:var(--red)">38.78%</strong>; fines de semana concentran mayor volatilidad con menor liquidez. <strong style="color:var(--text)">Acción: evitar órdenes grandes en fin de semana y usar límites de precio en todos los trades.</strong></p>
       </div>
 
       <div class="decision-card dc-port">
@@ -975,7 +965,7 @@ print(corr.round(3))</code></pre>
           <div class="dc-title">Estrategia de Portafolio</div>
           <span class="dc-badge badge-port">LARGO PLAZO</span>
         </div>
-        <p>El retorno acumulado desde agosto 2018 supera el 1,100% a pesar de ciclos bajistas severos. Con 51.11% de días alcistas y MA7 por encima de MA30, la estrategia <strong style="color:var(--text)">DCA (Dollar Cost Averaging)</strong> mensual históricamente habría superado al timing activo. <strong style="color:var(--text)">Acción: para horizonte &gt;2 años, DCA mensual en correcciones &gt;15% desde máximos recientes.</strong></p>
+        <p>Retorno acumulado desde 2018 supera el 1,100% pese a ciclos bajistas — la estrategia <strong style="color:var(--text)">DCA mensual</strong> históricamente supera al timing activo. <strong style="color:var(--text)">Acción: para horizonte &gt;2 años, compra fija mensual y doblar en correcciones &gt;15%.</strong></p>
       </div>
 
       <div class="decision-card dc-mon">
@@ -984,83 +974,9 @@ print(corr.round(3))</code></pre>
           <div class="dc-title">Indicadores a Monitorear</div>
           <span class="dc-badge badge-mon">CONTINUO</span>
         </div>
-        <p>Los 3 indicadores clave derivados del análisis son: <strong style="color:var(--text)">(1)</strong> Cruce MA7 vs MA30 para señal de tendencia. <strong style="color:var(--text)">(2)</strong> Volumen diario relativo — caídas con alto volumen son más peligrosas. <strong style="color:var(--text)">(3)</strong> Volatilidad diaria — superar el 10% en día bajista activa alerta de corrección mayor. <strong style="color:var(--text)">Acción: revisar estos 3 indicadores semanalmente.</strong></p>
+        <p>Los 3 indicadores clave: <strong style="color:var(--text)">(1)</strong> Cruce MA7/MA30, <strong style="color:var(--text)">(2)</strong> volumen relativo (caídas con alto volumen son más peligrosas), <strong style="color:var(--text)">(3)</strong> volatilidad diaria &gt;10% en día bajista = alerta de corrección mayor. <strong style="color:var(--text)">Acción: revisar semanalmente.</strong></p>
       </div>
 
-    </div>
-
-    <!-- Tabla resumen de decisiones -->
-    <div class="card mt-32">
-      <h3 class="fw-600" style="margin-bottom:16px">Resumen de Decisiones — Matriz de Acción</h3>
-      <div class="table-wrap">
-        <table class="dm-table">
-          <thead>
-            <tr>
-              <th>Decisión</th>
-              <th>Evidencia del análisis</th>
-              <th>Acción concreta</th>
-              <th>Horizonte</th>
-              <th>Prioridad</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Evaluar entrada</strong></td>
-              <td>Golden Cross activo, MA7 &gt; MA30, precio sobre ambas medias</td>
-              <td>Entrada escalonada 25% en soporte MA30 (~$76,662)</td>
-              <td>1–3 meses</td>
-              <td><span class="priority p-alta">Alta</span></td>
-            </tr>
-            <tr>
-              <td><strong>Definir stop-loss</strong></td>
-              <td>Caídas históricas hasta −70% (2022), fat tails confirmados</td>
-              <td>Stop-loss en cierre semanal bajo MA30</td>
-              <td>Inmediato</td>
-              <td><span class="priority p-alta">Alta</span></td>
-            </tr>
-            <tr>
-              <td><strong>Limitar exposición</strong></td>
-              <td>Volatilidad 4.13% diaria, distribución asimétrica</td>
-              <td>Máximo 10% del portafolio total en BTC</td>
-              <td>Permanente</td>
-              <td><span class="priority p-alta">Alta</span></td>
-            </tr>
-            <tr>
-              <td><strong>Aprovechar estacionalidad</strong></td>
-              <td>Feb, Mar, Oct positivos histórico; Jun, Ago negativos</td>
-              <td>Aumentar posición en enero; reducir en mayo</td>
-              <td>Anual</td>
-              <td><span class="priority p-media">Media</span></td>
-            </tr>
-            <tr>
-              <td><strong>Implementar DCA</strong></td>
-              <td>Retorno acumulado +1,100% pese a ciclos bajistas</td>
-              <td>Compra fija mensual, doblar en correcciones &gt;20%</td>
-              <td>&gt;2 años</td>
-              <td><span class="priority p-media">Media</span></td>
-            </tr>
-            <tr>
-              <td><strong>Monitorear volumen</strong></td>
-              <td>Correlación volumen-precio 0.54; outliers en bajo volumen</td>
-              <td>Alerta si volumen diario cae &gt;40% respecto promedio</td>
-              <td>Semanal</td>
-              <td><span class="priority p-media">Media</span></td>
-            </tr>
-            <tr>
-              <td><strong>Evitar operar en fin de semana</strong></td>
-              <td>Mayor volatilidad y menor volumen sábado y domingo</td>
-              <td>No ejecutar órdenes grandes entre viernes 22h y lunes 8h</td>
-              <td>Operativo</td>
-              <td><span class="priority p-baja">Baja</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Advertencia académica -->
-    <div class="insight mt-24" style="border-color:var(--red);background:rgba(248,81,73,.06)">
-      <strong style="color:var(--red)">Nota académica:</strong> Las decisiones presentadas se derivan exclusivamente del análisis estadístico y de minería de datos del histórico de precios. <strong style="color:var(--text)">No constituyen asesoría financiera.</strong> El rendimiento pasado no garantiza resultados futuros. Bitcoin es un activo de alto riesgo con posibilidad de pérdida total del capital invertido. Este análisis fue realizado con fines académicos en el contexto del curso de Minería de Datos.
     </div>
 
   </div>
@@ -1073,11 +989,6 @@ print(corr.round(3))</code></pre>
 ════════════════════════════════════════════════════════════ -->
 <footer>
   <div class="container">
-    <p style="margin-bottom:10px;font-weight:600;color:var(--text)">
-      Favio Alejandro Bernal González &nbsp;·&nbsp; Luisa María López Rigeles &nbsp;·&nbsp;
-      Carlos Andrés Lamus Gómez &nbsp;·&nbsp; Kevin Santiago Cachaya Collazos &nbsp;·&nbsp;
-      Juan Esteban Roncancio Cárdenas
-    </p>
     <p>
       Dataset: <span>bitcoin_clean.csv</span> &nbsp;·&nbsp;
       Período: <span>2018-08-22 → 2026-05-08</span> &nbsp;·&nbsp;
