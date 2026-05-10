@@ -421,6 +421,41 @@
               <p>MA7 y MA30 calculadas como media simple de los últimos 7 y 30 días del <code>priceClose</code>.</p>
             </div>
           </div>
+          <div class="step">
+            <div class="step-icon">🧹</div>
+            <div class="step-body">
+              <h4>Validación y limpieza inicial</h4>
+              <p>Se verificó ausencia de duplicados (0 encontrados en 2,794 registros). Se corrigió la codificación UTF-8 con BOM (<code>utf-8-sig</code>) que afectaba columnas con caracteres especiales (<code>año</code>, <code>semana_año</code>). Se detectó y conservó el único valor nulo en <code>rendimiento_vs_anterior</code> (fila 1, sin día previo). Se aplicó detección de outliers con IQR sobre <code>rendimiento_diario</code>: rango válido ≈ [−11.8%, +13.4%]; valores extremos documentados sin eliminación (fat tails de Bitcoin).</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">📐</div>
+            <div class="step-body">
+              <h4>Estadísticas descriptivas calculadas</h4>
+              <p>Para cada variable numérica se computaron: media (μ), desviación estándar (σ), mediana, moda, coeficiente de asimetría (skewness) y curtosis (kurtosis). Hallazgo clave: <code>rendimiento_diario</code> presenta asimetría ≈ −0.18 (ligera cola izquierda) y curtosis ≈ 10.4 (distribución leptocúrtica — colas mucho más gordas que la normal), lo que confirma el riesgo de eventos extremos en Bitcoin.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">🔗</div>
+            <div class="step-body">
+              <h4>Matriz de correlación (Pearson)</h4>
+              <p>Se calculó la correlación de Pearson entre todas las variables numéricas. Correlaciones destacadas: <code>priceClose</code> ↔ <code>media_movil_7d</code> = <strong>0.999</strong>; <code>priceClose</code> ↔ <code>media_movil_30d</code> = <strong>0.997</strong>; <code>volatilidad_diaria</code> ↔ <code>rango_cuerpo</code> = <strong>0.81</strong>; <code>rendimiento_diario</code> ↔ <code>direccion</code> = <strong>0.73</strong>. Correlación rendimiento ↔ precio prácticamente nula (−0.02), confirmando independencia entre nivel de precio y retorno diario.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">🏷️</div>
+            <div class="step-body">
+              <h4>Clasificación de variables</h4>
+              <p>Las 21 columnas se clasificaron según la taxonomía del curso: <strong>Numérica Continua</strong> (precios OHLC, volumen, rendimiento, volatilidad, medias móviles — 9 vars), <strong>Numérica Discreta</strong> (año, mes, día, trimestre, semana_año — 5 vars), <strong>Categórica</strong> (nombre_mes, nombre_dia — 2 vars), <strong>Binaria</strong> (dirección alcista/bajista — 1 var), <strong>Fecha/Tiempo</strong> (fecha — 1 var), <strong>Feature ingeniería</strong> (rango_cuerpo, rendimiento_vs_anterior — 2 vars derivadas).</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">🔧</div>
+            <div class="step-body">
+              <h4>Manejo del único valor nulo</h4>
+              <p>La columna <code>rendimiento_vs_anterior</code> presenta exactamente 1 valor nulo en el primer registro (2018-08-22) porque no existe día anterior de referencia. Decisión: <strong>se conserva como NaN</strong> sin imputar, ya que imputar con 0 o con la media distorsionaría la distribución de retornos. En análisis estadísticos se excluye automáticamente mediante <code>dropna()</code>; Power BI lo trata como BLANK() en DAX sin afectar agregaciones.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -460,6 +495,87 @@
         </tbody>
       </table>
     </div>
+
+    <div class="card mt-32" style="border-top:3px solid var(--purple)">
+      <h3 class="fw-600" style="margin-bottom:4px">🐍 Código Python — Preprocesamiento</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:20px">Fragmentos clave del pipeline de limpieza e ingeniería de características aplicado sobre <code>bitcoin_raw.csv</code></p>
+      <div class="card-grid card-grid-2" style="gap:12px">
+
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px">
+          <p style="font-size:.75rem;font-weight:600;color:var(--purple);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase">1 · Carga y validación inicial</p>
+          <pre style="font-size:.72rem;line-height:1.6;overflow-x:auto;white-space:pre"><code style="color:var(--text)">import pandas as pd
+
+df = pd.read_csv(
+    "bitcoin_raw.csv",
+    encoding="utf-8-sig"   # maneja BOM del archivo
+)
+
+print(df.shape)            # (2794, 21)
+print(df.isnull().sum())   # solo 1 nulo: rendimiento_vs_anterior
+print(df.duplicated().sum()) # 0 duplicados
+print(df.dtypes)           # verificar tipos de cada columna</code></pre>
+        </div>
+
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px">
+          <p style="font-size:.75rem;font-weight:600;color:var(--blue);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase">2 · Ingeniería de características temporales</p>
+          <pre style="font-size:.72rem;line-height:1.6;overflow-x:auto;white-space:pre"><code style="color:var(--text)">df["fecha"] = pd.to_datetime(df["fecha"])
+
+df["año"]        = df["fecha"].dt.year
+df["trimestre"]  = df["fecha"].dt.quarter
+df["mes"]        = df["fecha"].dt.month
+df["nombre_mes"] = df["fecha"].dt.month_name()
+df["dia"]        = df["fecha"].dt.day
+df["dia_semana"] = df["fecha"].dt.dayofweek  # 0=lun
+df["nombre_dia"] = df["fecha"].dt.day_name()
+df["semana_año"] = df["fecha"].dt.isocalendar().week</code></pre>
+        </div>
+
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px">
+          <p style="font-size:.75rem;font-weight:600;color:var(--orange);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase">3 · Indicadores técnicos</p>
+          <pre style="font-size:.72rem;line-height:1.6;overflow-x:auto;white-space:pre"><code style="color:var(--text)"># Rendimiento diario (%)
+df["rendimiento_diario"] = (
+    df["priceClose"].pct_change() * 100
+)
+
+# Volatilidad intradía (%)
+df["volatilidad_diaria"] = (
+    (df["priceHigh"] - df["priceLow"])
+    / df["priceOpen"] * 100
+)
+
+# Cuerpo de la vela y dirección
+df["rango_cuerpo"] = abs(df["priceClose"] - df["priceOpen"])
+df["direccion"]    = (df["priceClose"] > df["priceOpen"]).astype(int)
+
+# Medias móviles simples
+df["media_movil_7d"]  = df["priceClose"].rolling(7).mean()
+df["media_movil_30d"] = df["priceClose"].rolling(30).mean()</code></pre>
+        </div>
+
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px">
+          <p style="font-size:.75rem;font-weight:600;color:var(--green);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase">4 · Estadísticas descriptivas clave</p>
+          <pre style="font-size:.72rem;line-height:1.6;overflow-x:auto;white-space:pre"><code style="color:var(--text)">import statistics as st
+
+rend = df["rendimiento_diario"].dropna().tolist()
+
+print(f"Media:     {st.mean(rend):.4f}%")
+print(f"Mediana:   {st.median(rend):.4f}%")
+print(f"Std Dev:   {st.stdev(rend):.4f}%")
+
+# Asimetría y curtosis (scipy)
+from scipy import stats
+print(f"Skewness:  {stats.skew(rend):.4f}")   # ≈ -0.18
+print(f"Kurtosis:  {stats.kurtosis(rend):.4f}") # ≈ 10.4
+
+# Correlación Pearson
+corr = df[["priceClose","media_movil_7d",
+           "rendimiento_diario","volatilidad_diaria"]].corr()
+print(corr.round(3))</code></pre>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </section>
 
