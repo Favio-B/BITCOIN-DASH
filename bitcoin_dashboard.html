@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Analytics Dashboard 2018–2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ── Variables ─────────────────────────────────────────── */
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --surface2: #1c2128;
+    --border:   #30363d;
+    --orange:   #f7931a;
+    --orange2:  #e07b0a;
+    --green:    #3fb950;
+    --red:      #f85149;
+    --blue:     #58a6ff;
+    --purple:   #a371f7;
+    --yellow:   #d29922;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --radius:   10px;
+    --shadow:   0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  /* ── Reset ─────────────────────────────────────────────── */
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  img { max-width:100%; display:block; }
+  a   { color: var(--orange); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Navbar ────────────────────────────────────────────── */
+  nav {
+    position: fixed; top:38px; left:0; right:0; z-index:100;
+    background: rgba(13,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 24px; height: 54px;
+    overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display:none; }
+  .nav-brand {
+    font-weight: 700; font-size: .95rem;
+    color: var(--orange); white-space: nowrap;
+    margin-right: 16px; display:flex; align-items:center; gap:6px;
+  }
+  .nav-brand span { font-size: 1.2rem; }
+  nav a {
+    color: var(--muted); font-size: .8rem; font-weight:500;
+    white-space: nowrap; padding: 6px 10px; border-radius:6px;
+    transition: color .2s, background .2s;
+  }
+  nav a:hover { color:var(--text); background:var(--surface2); text-decoration:none; }
+
+  /* ── Layout ────────────────────────────────────────────── */
+  main { padding-top: 100px; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 64px 0; }
+  section + section { border-top: 1px solid var(--border); }
+
+  /* ── Cards ─────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .card-grid { display:grid; gap:16px; }
+  .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); }
+  .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); }
+
+  /* ── Section headers ───────────────────────────────────── */
+  .section-label {
+    font-size: .72rem; font-weight:600; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--orange);
+    margin-bottom:8px;
+  }
+  .section-title {
+    font-size: 1.75rem; font-weight:800; line-height:1.2;
+    margin-bottom:12px;
+  }
+  .section-desc {
+    color: var(--muted); max-width:680px; margin-bottom:32px;
+  }
+
+  /* ── Hero ──────────────────────────────────────────────── */
+  #hero {
+    padding: 80px 0 64px;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(247,147,26,.12), transparent);
+  }
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight:800; line-height:1.1;
+    background: linear-gradient(135deg, #fff 30%, var(--orange));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; margin-bottom:16px;
+  }
+  .hero-sub {
+    font-size: 1.05rem; color:var(--muted); margin-bottom:32px; max-width:600px;
+  }
+  .badges { display:flex; flex-wrap:wrap; gap:10px; }
+  .badge {
+    display:inline-flex; align-items:center; gap:7px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:999px; padding:7px 16px;
+    font-size:.82rem; font-weight:600;
+  }
+  .badge .dot { width:8px;height:8px;border-radius:50%; flex-shrink:0; }
+
+  /* ── KPI strip ─────────────────────────────────────────── */
+  .kpi-strip {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+    gap:12px; margin-top:40px;
+  }
+  .kpi {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:18px 20px;
+  }
+  .kpi-label { font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:6px; }
+  .kpi-value { font-size:1.45rem; font-weight:700; }
+
+  /* ── Table ─────────────────────────────────────────────── */
+  .table-wrap { overflow-x:auto; border-radius:var(--radius); border:1px solid var(--border); }
+  table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  thead { background:var(--surface2); }
+  th { padding:10px 14px; text-align:left; font-weight:600; color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); }
+  td { padding:10px 14px; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--surface2); }
+  .tag {
+    display:inline-block; padding:2px 8px; border-radius:4px;
+    font-size:.72rem; font-weight:600;
+  }
+  .tag-date   { background:rgba(88,166,255,.15); color:var(--blue); }
+  .tag-num    { background:rgba(247,147,26,.12); color:var(--orange); }
+  .tag-cat    { background:rgba(163,113,247,.15); color:var(--purple); }
+  .tag-bool   { background:rgba(63,185,80,.12); color:var(--green); }
+  .tag-feat   { background:rgba(210,153,34,.12); color:var(--yellow); }
+
+  /* ── Steps ─────────────────────────────────────────────── */
+  .steps { display:flex; flex-direction:column; gap:0; }
+  .step {
+    display:flex; gap:16px; align-items:flex-start;
+    padding:20px 0; border-bottom:1px solid var(--border);
+  }
+  .step:last-child { border-bottom:none; }
+  .step-icon {
+    width:40px; height:40px; border-radius:50%; flex-shrink:0;
+    background:var(--surface2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem;
+  }
+  .step-body h4 { font-size:.9rem; font-weight:600; margin-bottom:4px; }
+  .step-body p  { font-size:.83rem; color:var(--muted); }
+
+  /* ── Iframe placeholder ────────────────────────────────── */
+  .iframe-wrap {
+    position:relative; border-radius:var(--radius);
+    overflow:hidden; border:1px solid var(--border);
+    background:var(--surface2);
+  }
+  .iframe-placeholder {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px;
+    background:var(--surface2);
+    pointer-events:none;
+  }
+  .iframe-placeholder .pi-icon { font-size:2.5rem; opacity:.4; }
+  .iframe-placeholder p { color:var(--muted); font-size:.85rem; text-align:center; max-width:300px; }
+  .iframe-placeholder code {
+    background:var(--surface); border:1px solid var(--border);
+    padding:4px 10px; border-radius:6px; font-size:.75rem; color:var(--orange);
+  }
+  iframe { display:block; width:100%; border:none; }
+  .iframe-responsive { position:relative; width:100%; padding-bottom:62.25%; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); }
+  .iframe-responsive iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+  /* ── Image card ────────────────────────────────────────── */
+  .img-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
+  .img-card img { width:100%; border-radius:var(--radius) var(--radius) 0 0; }
+  .img-card .img-caption { padding:18px 20px; }
+  .img-card .img-caption h4 { font-size:.95rem; font-weight:600; margin-bottom:6px; }
+  .img-card .img-caption p  { font-size:.82rem; color:var(--muted); }
+
+  /* ── Insight box ───────────────────────────────────────── */
+  .insight {
+    background: rgba(247,147,26,.07);
+    border-left: 3px solid var(--orange);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px; margin-top:16px; font-size:.85rem; color:var(--muted);
+  }
+  .insight strong { color:var(--text); }
+
+  /* ── Conclusions ───────────────────────────────────────── */
+  .conclusion-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
+  .conclusion-list li {
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px 18px;
+  }
+  .conclusion-list li .ci { font-size:1.3rem; flex-shrink:0; margin-top:2px; }
+  .conclusion-list li p { font-size:.88rem; color:var(--muted); }
+  .conclusion-list li p strong { color:var(--text); display:block; margin-bottom:3px; }
+
+  /* ── Footer ────────────────────────────────────────────── */
+  footer {
+    border-top:1px solid var(--border);
+    padding:32px 0; text-align:center;
+    color:var(--muted); font-size:.8rem;
+  }
+  footer span { color:var(--orange); }
+
+  /* ── Utilities ─────────────────────────────────────────── */
+  .mt-8  { margin-top:8px; }
+  .mt-16 { margin-top:16px; }
+  .mt-24 { margin-top:24px; }
+  .mt-32 { margin-top:32px; }
+  .text-green  { color:var(--green); }
+  .text-red    { color:var(--red); }
+  .text-orange { color:var(--orange); }
+  .text-blue   { color:var(--blue); }
+  .text-muted  { color:var(--muted); }
+  .fw-600 { font-weight:600; }
+  .divider { border:none; border-top:1px solid var(--border); margin:28px 0; }
+
+  /* ── Team banner ───────────────────────────────────────── */
+  .team-banner {
+    position: fixed; top:0; left:0; right:0; z-index:101;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 7px 24px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px;
+    font-size: .75rem;
+  }
+  .team-banner .tb-label {
+    color: var(--orange); font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; white-space: nowrap;
+  }
+  .team-banner .tb-names {
+    display: flex; flex-wrap: wrap; gap: 6px 16px;
+  }
+  .team-banner .tb-name {
+    color: var(--muted); white-space: nowrap;
+  }
+  .team-banner .tb-name strong { color: var(--text); font-weight: 600; }
+
+  /* ── Decision cards ────────────────────────────────────── */
+  .decision-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:16px; }
+  .decision-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .decision-card .dc-header {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .decision-card .dc-icon { font-size: 1.4rem; flex-shrink:0; }
+  .decision-card .dc-title { font-size: .9rem; font-weight: 700; }
+  .decision-card .dc-badge {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font-size: .68rem; font-weight: 700; margin-left: auto; white-space: nowrap;
+  }
+  .decision-card p { font-size: .83rem; color: var(--muted); line-height: 1.7; }
+  .dc-buy   { border-top: 3px solid var(--green); }
+  .dc-risk  { border-top: 3px solid var(--red); }
+  .dc-wait  { border-top: 3px solid var(--yellow); }
+  .dc-time  { border-top: 3px solid var(--blue); }
+  .dc-port  { border-top: 3px solid var(--purple); }
+  .dc-mon   { border-top: 3px solid var(--orange); }
+  .badge-buy  { background: rgba(63,185,80,.15);  color: var(--green); }
+  .badge-risk { background: rgba(248,81,73,.15);  color: var(--red); }
+  .badge-wait { background: rgba(210,153,34,.15); color: var(--yellow); }
+  .badge-time { background: rgba(88,166,255,.15); color: var(--blue); }
+  .badge-port { background: rgba(163,113,247,.15);color: var(--purple); }
+  .badge-mon  { background: rgba(247,147,26,.15); color: var(--orange); }
+
+  .dm-table { width:100%; border-collapse:collapse; font-size:.83rem; margin-top:20px; }
+  .dm-table th { background:var(--surface2); padding:10px 14px; text-align:left; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); }
+  .dm-table td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .dm-table tr:last-child td { border-bottom:none; }
+  .dm-table tr:hover td { background:var(--surface2); }
+  .priority { display:inline-block; padding:2px 8px; border-radius:4px; font-size:.7rem; font-weight:700; }
+  .p-alta   { background:rgba(248,81,73,.15);  color:var(--red); }
+  .p-media  { background:rgba(210,153,34,.15); color:var(--yellow); }
+  .p-baja   { background:rgba(88,166,255,.15); color:var(--blue); }
+
+  @media(max-width:640px) {
+    .section-title { font-size:1.4rem; }
+    .hero-title    { font-size:2rem; }
+    nav { padding:0 12px; }
+    .team-banner { padding: 8px 12px; font-size:.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════════ -->
+<div class="team-banner">
+  <span class="tb-label">&#8383; Equipo</span>
+  <div class="tb-names">
+    <span class="tb-name"><strong>Favio Alejandro</strong> Bernal González</span>
+    <span class="tb-name"><strong>Luisa María</strong> López Rigeles</span>
+    <span class="tb-name"><strong>Carlos Andrés</strong> Lamus Gómez</span>
+    <span class="tb-name"><strong>Kevin Santiago</strong> Cachaya Collazos</span>
+    <span class="tb-name"><strong>Juan Esteban</strong> Roncancio Cárdenas</span>
+  </div>
+</div>
+<nav>
+  <div class="nav-brand"><span>₿</span> BTC Dashboard</div>
+  <a href="#dataset">Dataset</a>
+  <a href="#marco">Marco Teórico</a>
+  <a href="#rendimientos">Rendimientos</a>
+  <a href="#senales">Señales</a>
+  <a href="#precio">Precio</a>
+  <a href="#volumen">Volumen</a>
+  <a href="#python">Python</a>
+  <a href="#conclusiones">Conclusiones</a>
+  <a href="#decisiones">Decisiones</a>
+  <a href="https://app.powerbi.com/view?r=eyJrIjoiOWQyZDE1OTktOGQyNC00NGE0LTg0M2MtYTg2YTQ5ZTI4MjQxIiwidCI6IjZjYTM0YWUxLTQ2NmYtNDRiYy1hN2FhLTBhYzVhNzhjNjFiMSIsImMiOjR9" target="_blank" style="color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:4px 12px;margin-left:8px">Ver Tablero ↗</a>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 0 — HERO
+════════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <p class="section-label">Minería de Datos · Proyecto Final · Universidad</p>
+    <h1 class="hero-title">Bitcoin Analytics<br>Dashboard 2018–2026</h1>
+    <p class="hero-sub">Análisis completo de 2,794 registros diarios de Bitcoin desde agosto 2018 hasta mayo 2026 — precio, rendimiento, volatilidad, volumen y señales de trading.</p>
+
+    <div class="badges">
+      <div class="badge"><div class="dot" style="background:var(--orange)"></div>Precio actual: <strong class="text-orange">$80,186</strong></div>
+      <div class="badge"><div class="dot" style="background:var(--green)"></div>Señal MA: <strong class="text-green">COMPRA ↑</strong></div>
+      <div class="badge"><div class="dot" style="background:var(--blue)"></div>Días alcistas: <strong class="text-blue">51.11%</strong></div>
+      <div class="badge"><div class="dot" style="background:var(--muted)"></div>Período: 2018-08-22 → 2026-05-08</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 1 — DATASET & PREPROCESAMIENTO
+════════════════════════════════════════════════════════════ -->
+<section id="dataset">
+  <div class="container">
+    <p class="section-label">Sección 1</p>
+    <h2 class="section-title">Sobre el Dataset y Preprocesamiento</h2>
+    <p class="section-desc">Descripción completa de la fuente de datos, columnas disponibles y las transformaciones aplicadas para preparar el dataset de análisis.</p>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <h3 class="fw-600" style="margin-bottom:12px">📦 Descripción del Dataset</h3>
+        <p style="color:var(--muted);font-size:.88rem">
+          Dataset de precios históricos diarios de <strong style="color:var(--text)">Bitcoin (BTC/USD)</strong> descargado de fuente histórica de precios cripto. Cubre el período comprendido entre el <strong style="color:var(--text)">22 de agosto de 2018</strong> y el <strong style="color:var(--text)">8 de mayo de 2026</strong>, con un total de <strong style="color:var(--orange)">2,794 registros diarios</strong> y 21 columnas tras el feature engineering.
+        </p>
+        <hr class="divider">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.83rem">
+          <div><span class="text-muted">Fuente:</span> Histórico BTC/USD</div>
+          <div><span class="text-muted">Frecuencia:</span> Diaria</div>
+          <div><span class="text-muted">Registros:</span> <span class="text-orange fw-600">2,794</span></div>
+          <div><span class="text-muted">Columnas:</span> 21</div>
+          <div><span class="text-muted">Nulos:</span> 1 (rendimiento_vs_anterior, día 1)</div>
+          <div><span class="text-muted">Período:</span> 2018 → 2026</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="fw-600" style="margin-bottom:12px">⚙️ Preprocesamiento Aplicado</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-icon">📅</div>
+            <div class="step-body">
+              <h4>Extracción de temporalidad</h4>
+              <p>Desde la columna <code>fecha</code> se extrajeron: año, trimestre, mes, nombre_mes, dia, dia_semana, nombre_dia y semana_año.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">📈</div>
+            <div class="step-body">
+              <h4>Rendimiento diario</h4>
+              <p>Calculado como variación porcentual del <code>priceClose</code> respecto al día anterior: <code>(Close_t / Close_{t-1} - 1) × 100</code></p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">⚡</div>
+            <div class="step-body">
+              <h4>Volatilidad diaria</h4>
+              <p>Rango porcentual High-Low respecto al Open: <code>(High - Low) / Open × 100</code></p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">📊</div>
+            <div class="step-body">
+              <h4>Rango de cuerpo y dirección</h4>
+              <p>Rango_cuerpo = |Close - Open|. Dirección: binario 1=alcista si Close &gt; Open, 0=bajista.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-icon">〰️</div>
+            <div class="step-body">
+              <h4>Medias móviles</h4>
+              <p>MA7 y MA30 calculadas como media simple de los últimos 7 y 30 días del <code>priceClose</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-32 table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Columna</th>
+            <th>Tipo dato</th>
+            <th>Tipo según curso</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>fecha</strong></td><td><span class="tag tag-date">DateTime</span></td><td>Numérica Discreta</td><td>Fecha del registro diario</td></tr>
+          <tr><td><strong>año</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Año extraído de la fecha</td></tr>
+          <tr><td><strong>trimestre</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Trimestre (1–4)</td></tr>
+          <tr><td><strong>mes</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Mes numérico (1–12)</td></tr>
+          <tr><td><strong>nombre_mes</strong></td><td><span class="tag tag-cat">String</span></td><td>Categórica</td><td>Nombre del mes en inglés</td></tr>
+          <tr><td><strong>dia</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Día del mes (1–31)</td></tr>
+          <tr><td><strong>dia_semana</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Día de la semana (0=lunes)</td></tr>
+          <tr><td><strong>nombre_dia</strong></td><td><span class="tag tag-cat">String</span></td><td>Categórica</td><td>Nombre del día en inglés</td></tr>
+          <tr><td><strong>semana_año</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Semana del año (1–53)</td></tr>
+          <tr><td><strong>priceOpen</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio de apertura diario (USD)</td></tr>
+          <tr><td><strong>priceHigh</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio máximo del día (USD)</td></tr>
+          <tr><td><strong>priceLow</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio mínimo del día (USD)</td></tr>
+          <tr><td><strong>priceClose</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio de cierre diario (USD)</td></tr>
+          <tr><td><strong>volume</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Volumen operado en USD</td></tr>
+          <tr><td><strong>rendimiento_diario</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Variación % del priceClose respecto al día anterior</td></tr>
+          <tr><td><strong>volatilidad_diaria</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Rango % High-Low respecto al Open</td></tr>
+          <tr><td><strong>rango_cuerpo</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Diferencia absoluta |Close - Open|</td></tr>
+          <tr><td><strong>direccion</strong></td><td><span class="tag tag-bool">Binario</span></td><td>Categórica</td><td>1 = alcista (Close &gt; Open), 0 = bajista</td></tr>
+          <tr><td><strong>media_movil_7d</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Media móvil simple 7 días del priceClose</td></tr>
+          <tr><td><strong>media_movil_30d</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Media móvil simple 30 días del priceClose</td></tr>
+          <tr><td><strong>rendimiento_vs_anterior</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Rendimiento del día vs día anterior (1 nulo en día 1)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 1.5 — MARCO TEÓRICO
+════════════════════════════════════════════════════════════ -->
+<section id="marco">
+  <div class="container">
+    <p class="section-label">Sección 1.5 · Fundamentos Teóricos</p>
+    <h2 class="section-title">Marco Teórico: Minería de Datos</h2>
+    <p class="section-desc">Curso: Minería de Datos — <strong style="color:var(--text)">Gustavo Santos Vargas</strong> · Universidad Libre</p>
+
+    <div class="card-grid card-grid-2">
+
+      <!-- CRISP-DM -->
+      <div class="card" style="border-top:3px solid var(--orange)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:1.4rem">🔄</span>
+          <h3 class="fw-600" style="font-size:.95rem">Metodología CRISP-DM Aplicada</h3>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:.82rem">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="background:var(--orange);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">1</span>
+            <div><strong style="color:var(--text)">Comprensión del negocio</strong><span style="color:var(--muted)"> — Análisis del mercado Bitcoin y sus ciclos de precio.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="background:var(--blue);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">2</span>
+            <div><strong style="color:var(--text)">Comprensión de los datos</strong><span style="color:var(--muted)"> — Exploración del dataset histórico 2018–2026 con 2,794 registros.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="background:var(--purple);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">3</span>
+            <div><strong style="color:var(--text)">Preparación de datos</strong><span style="color:var(--muted)"> — Limpieza, feature engineering, cálculo de indicadores técnicos.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="background:var(--green);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">4</span>
+            <div><strong style="color:var(--text)">Modelado</strong><span style="color:var(--muted)"> — Señales MA, análisis estadístico, correlaciones, distribuciones.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="background:var(--yellow);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">5</span>
+            <div><strong style="color:var(--text)">Evaluación</strong><span style="color:var(--muted)"> — Validación de patrones estacionales y señales de cruce de medias.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="background:var(--red);color:#fff;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">6</span>
+            <div><strong style="color:var(--text)">Despliegue</strong><span style="color:var(--muted)"> — Este dashboard interactivo con Power BI y Python.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preprocesamiento semanas 3-4 -->
+      <div class="card" style="border-top:3px solid var(--blue)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:1.4rem">🧹</span>
+          <h3 class="fw-600" style="font-size:.95rem">Preprocesamiento Aplicado <span style="color:var(--muted);font-weight:400">(Semanas 3–4)</span></h3>
+        </div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
+          Se aplicaron las técnicas del curso: <strong style="color:var(--text)">eliminación de duplicados</strong> (0 encontrados), <strong style="color:var(--text)">validación de formatos</strong> de fecha y precio, <strong style="color:var(--text)">manejo de datos faltantes</strong> (1 nulo en <code>rendimiento_vs_anterior</code> del primer registro — esperado y documentado), <strong style="color:var(--text)">escalado implícito</strong> en los retornos porcentuales, e <strong style="color:var(--text)">ingeniería de características</strong> generando <strong style="color:var(--orange)">12 variables derivadas</strong> a partir de fecha y precio: año, trimestre, mes, nombre_mes, dia, dia_semana, nombre_dia, semana_año, rendimiento_diario, volatilidad_diaria, rango_cuerpo, direccion.
+        </p>
+      </div>
+
+      <!-- Estadístico descriptivo -->
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:1.4rem">📐</span>
+          <h3 class="fw-600" style="font-size:.95rem">Análisis Estadístico Descriptivo</h3>
+        </div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
+          Se calcularon <strong style="color:var(--text)">medidas de tendencia central</strong> (media rendimiento diario: +0.13%, mediana ≈ 0%), <strong style="color:var(--text)">medidas de dispersión</strong> (σ = 3.24%), <strong style="color:var(--text)">coeficiente de asimetría negativo</strong> (cola izquierda más pesada: mínimo −37.19%) y <strong style="color:var(--text)">curtosis positiva</strong> (distribución leptocúrtica — colas más pesadas que la normal, visible en el histograma KDE). Se aplicó <strong style="color:var(--text)">detección de outliers vía IQR</strong> y visualización con boxplot por año, identificando años de alta dispersión (2020–2021) y alta frecuencia de outliers negativos (2022).
+        </p>
+      </div>
+
+      <!-- Series de tiempo -->
+      <div class="card" style="border-top:3px solid var(--purple)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:1.4rem">〰️</span>
+          <h3 class="fw-600" style="font-size:.95rem">Minería de Series de Tiempo</h3>
+        </div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
+          El dataset Bitcoin es una <strong style="color:var(--text)">serie de tiempo financiera</strong> con cuatro componentes identificados: <strong style="color:var(--text)">Tendencia</strong> (crecimiento secular del precio de $3,236 a $124,752), <strong style="color:var(--text)">Ciclos</strong> (bull/bear markets ~2 años ligados a halvings), <strong style="color:var(--text)">Estacionalidad</strong> (patrones por mes y día de semana estadísticamente identificados) e <strong style="color:var(--text)">Irregulares</strong> (crashes como COVID marzo 2020, colapso Terra/Luna mayo 2022, quiebra FTX noviembre 2022). Las <strong style="color:var(--text)">medias móviles MA7 y MA30</strong> actúan como técnica de suavizamiento y generación de señales de trading.
+        </p>
+      </div>
+
+      <!-- Dispersión y correlación -->
+      <div class="card" style="border-top:3px solid var(--yellow);grid-column:1/-1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-size:1.4rem">🔗</span>
+          <h3 class="fw-600" style="font-size:.95rem">Diagrama de Dispersión y Correlación</h3>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:.83rem">
+          <div>
+            <p style="color:var(--muted);line-height:1.75">Se analizó la <strong style="color:var(--text)">correlación de Pearson</strong> entre las variables numéricas del dataset, aplicando los conceptos del curso. La correlación <strong style="color:var(--text)">volumen ↔ volatilidad (r = 0.44)</strong> y <strong style="color:var(--text)">precio ↔ volumen (r = 0.54)</strong> muestran relaciones positivas moderadas. El scatter plot volumen vs volatilidad evidencia relación positiva con outliers en eventos extremos.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
+              <span style="color:var(--muted)">priceClose ↔ priceOpen</span><strong style="color:var(--green)">r ≈ 1.00</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
+              <span style="color:var(--muted)">volume ↔ precio</span><strong style="color:var(--blue)">r = 0.54</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
+              <span style="color:var(--muted)">volume ↔ volatilidad</span><strong style="color:var(--yellow)">r = 0.44</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
+              <span style="color:var(--muted)">rendimiento ↔ precio</span><strong style="color:var(--muted)">r ≈ 0.00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 2 — RENDIMIENTOS (Power BI)
+════════════════════════════════════════════════════════════ -->
+<section id="rendimientos">
+  <div class="container">
+    <p class="section-label">Sección 2 · Power BI</p>
+    <h2 class="section-title">Análisis de Rendimientos</h2>
+    <p class="section-desc">Comportamiento diario de los retornos de Bitcoin agregados por año y mes.</p>
+
+    <div class="card mt-16">
+      <p style="font-size:.9rem;color:var(--muted);line-height:1.8">
+        Análisis del comportamiento diario de los retornos de Bitcoin agregados por año y mes. Se identifican años con rendimiento negativo <strong style="color:var(--text)">2018 y 2022</strong> asociados a ciclos bajistas del mercado cripto. El <strong style="color:var(--green)">51.11%</strong> de los días son alcistas, indicando un leve sesgo positivo estructural. El rendimiento máximo diario registrado fue <strong style="color:var(--green)">+18.80%</strong> y el mínimo <strong style="color:var(--red)">-37.19%</strong>, evidenciando la alta asimetría de la distribución. Los meses de <strong style="color:var(--text)">febrero, marzo y octubre</strong> históricamente concentran los mejores rendimientos promedio, mientras junio y agosto tienden a ser negativos.
+      </p>
+      <div class="insight">
+        <strong>Insight clave:</strong> La distribución de rendimientos presenta <strong>fat tails</strong> — colas más pesadas que una distribución normal. Esto implica que los eventos extremos (crashes y rallies) son más frecuentes de lo que los modelos gaussianos predicen.
+      </div>
+    </div>
+
+    <div class="iframe-responsive mt-24">
+      <iframe title="final — Rendimientos" src="https://app.powerbi.com/view?r=eyJrIjoiOWQyZDE1OTktOGQyNC00NGE0LTg0M2MtYTg2YTQ5ZTI4MjQxIiwidCI6IjZjYTM0YWUxLTQ2NmYtNDRiYy1hN2FhLTBhYzVhNzhjNjFiMSIsImMiOjR9&pageName=60760c0dda5fb1086b7b" frameborder="0" allowFullScreen="true" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 3 — SEÑALES DE COMPRA/VENTA (Power BI)
+════════════════════════════════════════════════════════════ -->
+<section id="senales">
+  <div class="container">
+    <p class="section-label">Sección 3 · Power BI</p>
+    <h2 class="section-title">Señales de Compra / Venta / Neutro</h2>
+    <p class="section-desc">Sistema de señales basado en cruces de medias móviles MA7 y MA30.</p>
+
+    <div class="card-grid card-grid-3 mt-16">
+      <div class="card" style="border-color:rgba(63,185,80,.4)">
+        <div style="font-size:1.5rem;margin-bottom:8px">🟢</div>
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Señal actual</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--green)">COMPRA ↑</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:4px">Golden Cross activo</div>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:8px">📈</div>
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">MA 7 días</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--blue)">$79,939</div>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:8px">📉</div>
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">MA 30 días</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--blue)">$76,662</div>
+      </div>
+    </div>
+
+    <div class="card mt-16">
+      <p style="font-size:.9rem;color:var(--muted);line-height:1.8">
+        Análisis de medias móviles <strong style="color:var(--text)">MA7 y MA30</strong> como sistema de señales de trading. Cuando la MA7 cruza hacia arriba la MA30 se genera un <strong style="color:var(--green)">Golden Cross (señal COMPRA)</strong>; el cruce inverso genera un <strong style="color:var(--red)">Death Cross (señal VENTA)</strong>. Al cierre del dataset la señal es <strong style="color:var(--green)">COMPRA</strong> con MA7 = $79,939 superior a MA30 = $76,662. El análisis por día de semana revela que <strong style="color:var(--text)">miércoles y lunes</strong> concentran mayor rendimiento promedio, mientras <strong style="color:var(--red)">jueves</strong> registra el peor rendimiento promedio. Viernes y lunes lideran en volumen operado.
+      </p>
+      <div class="insight">
+        <strong>Insight clave:</strong> Los cruces de medias en 2019, 2020 y 2023 precedieron movimientos alcistas sostenidos de semanas. La estrategia MA7 vs MA30 es más efectiva como confirmador de tendencia que como predictor de entrada precisa.
+      </div>
+    </div>
+
+    <div class="iframe-responsive mt-24">
+      <iframe title="final — Señales" src="https://app.powerbi.com/view?r=eyJrIjoiOWQyZDE1OTktOGQyNC00NGE0LTg0M2MtYTg2YTQ5ZTI4MjQxIiwidCI6IjZjYTM0YWUxLTQ2NmYtNDRiYy1hN2FhLTBhYzVhNzhjNjFiMSIsImMiOjR9&pageName=7dc28c4280938a4dc251" frameborder="0" allowFullScreen="true" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 4 — PRECIO Y VOLATILIDAD (Power BI)
+════════════════════════════════════════════════════════════ -->
+<section id="precio">
+  <div class="container">
+    <p class="section-label">Sección 4 · Power BI</p>
+    <h2 class="section-title">Precio y Volatilidad</h2>
+    <p class="section-desc">Evolución histórica del precio de cierre y análisis de la volatilidad diaria por períodos.</p>
+
+    <div class="card mt-16">
+      <p style="font-size:.9rem;color:var(--muted);line-height:1.8">
+        Evolución del precio de cierre desde <strong style="color:var(--red)">$3,236 en 2018</strong> hasta máximo histórico de <strong style="color:var(--green)">$124,752</strong>. Se observan claramente los ciclos bull/bear: rally <strong style="color:var(--text)">2020–2021</strong>, corrección <strong style="color:var(--red)">2022 (−70% desde máximos)</strong> asociada al colapso de Terra/Luna y la quiebra de FTX, recuperación <strong style="color:var(--text)">2023–2024</strong> impulsada por la aprobación de ETFs de Bitcoin spot, y nuevo ATH en <strong style="color:var(--green)">2025</strong>. La volatilidad promedio diaria es <strong style="color:var(--text)">4.13%</strong> con picos de hasta <strong style="color:var(--red)">38.78%</strong> en eventos extremos como el crash de marzo 2020 (COVID). El rango de cuerpo de las velas muestra mayor indecisión del mercado en períodos de alta volatilidad.
+      </p>
+      <div class="insight">
+        <strong>Insight clave:</strong> La volatilidad estructural de Bitcoin disminuye progresivamente con el tiempo, pasando de promedios superiores al 6% en 2018–2019 a promedios cercanos al 3% en 2025–2026, señal de maduración del activo.
+      </div>
+    </div>
+
+    <div class="iframe-responsive mt-24">
+      <iframe title="final — Precio y Volatilidad" src="https://app.powerbi.com/view?r=eyJrIjoiOWQyZDE1OTktOGQyNC00NGE0LTg0M2MtYTg2YTQ5ZTI4MjQxIiwidCI6IjZjYTM0YWUxLTQ2NmYtNDRiYy1hN2FhLTBhYzVhNzhjNjFiMSIsImMiOjR9&pageName=34c9062126b864acecc8" frameborder="0" allowFullScreen="true" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 5 — VOLUMEN Y ACUMULACIÓN (Power BI)
+════════════════════════════════════════════════════════════ -->
+<section id="volumen">
+  <div class="container">
+    <p class="section-label">Sección 5 · Power BI</p>
+    <h2 class="section-title">Volumen y Acumulación</h2>
+    <p class="section-desc">Análisis del volumen operado a lo largo del tiempo y su relación con el precio.</p>
+
+    <div class="card mt-16">
+      <p style="font-size:.9rem;color:var(--muted);line-height:1.8">
+        El volumen total operado en la serie asciende a <strong style="color:var(--orange)">$91.51 billones USD</strong>. Se observa una <strong style="color:var(--text)">correlación moderada precio-volumen de 0.54</strong>, indicando que los movimientos de precio fuertes tienden a coincidir con mayor actividad pero sin una dependencia directa. El volumen promedio diario creció de aproximadamente <strong style="color:var(--text)">$4B en 2018</strong> a <strong style="color:var(--green)">$35B en 2026</strong>, reflejando la creciente adopción institucional y la maduración del mercado cripto. Los meses de <strong style="color:var(--text)">febrero y marzo</strong> históricamente concentran mayor volumen promedio, coincidiendo con los períodos de mayor actividad alcista.
+      </p>
+      <div class="insight">
+        <strong>Insight clave:</strong> Los outliers de alta volatilidad (&gt;20%) ocurren con volúmenes relativamente bajos, sugiriendo que los movimientos extremos no siempre están acompañados de alta liquidez — fenómeno característico de mercados con menor profundidad.
+      </div>
+    </div>
+
+    <div class="iframe-responsive mt-24">
+      <iframe title="final — Volumen" src="https://app.powerbi.com/view?r=eyJrIjoiOWQyZDE1OTktOGQyNC00NGE0LTg0M2MtYTg2YTQ5ZTI4MjQxIiwidCI6IjZjYTM0YWUxLTQ2NmYtNDRiYy1hN2FhLTBhYzVhNzhjNjFiMSIsImMiOjR9&pageName=a2b3055f9bf059b99dd0" frameborder="0" allowFullScreen="true" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 6 — ANÁLISIS ESTADÍSTICO PYTHON
+════════════════════════════════════════════════════════════ -->
+<section id="python">
+  <div class="container">
+    <p class="section-label">Sección 6 · Python — pandas · matplotlib · seaborn</p>
+    <h2 class="section-title">Análisis Estadístico</h2>
+    <p class="section-desc">Gráficas generadas con Python para análisis exploratorio profundo de distribuciones, correlaciones y patrones temporales.</p>
+
+    <!-- 6.1 Precio + MA -->
+    <div class="img-card mt-32">
+      <img src="serie_tiempo_precio.png" alt="Serie temporal precio Bitcoin con medias móviles MA7 y MA30" loading="lazy">
+      <div class="img-caption">
+        <h4>6.1 — Precio de Cierre con Medias Móviles (MA7 y MA30)</h4>
+        <p>Serie temporal completa del precio de cierre de Bitcoin con MA7 y MA30 superpuestas. Se visualizan los <strong>Golden Cross</strong> y <strong>Death Cross</strong> a lo largo de 8 años de historia. Los cruces de medias en 2019, 2020 y 2023 precedieron movimientos alcistas sostenidos de semanas o meses. La MA30 actúa como soporte dinámico durante las tendencias alcistas y como resistencia en tendencias bajistas, siendo un indicador de tendencia de medio plazo más fiable que la MA7.</p>
+        <div class="insight mt-8">
+          <strong>Nota técnica:</strong> Las primeras 30 entradas presentan NaN en MA30 por diseño — es el período de calentamiento necesario para el cálculo de la media móvil.
+        </div>
+      </div>
+    </div>
+
+    <!-- 6.2 Distribución rendimiento -->
+    <div class="img-card mt-24">
+      <img src="distribucion_rendimiento.png" alt="Histograma distribución rendimientos diarios Bitcoin" loading="lazy">
+      <div class="img-caption">
+        <h4>6.2 — Distribución del Rendimiento Diario</h4>
+        <p>Histograma con curva KDE comparada contra distribución normal teórica (μ = 0.13%, σ = 3.24%). La distribución es <strong>leptocúrtica</strong>: exceso de curtosis positivo y colas más pesadas que la normal. La cola izquierda alcanza <strong>−37%</strong> (crash COVID, marzo 2020) mientras la derecha llega a <strong>+18.8%</strong>. Este comportamiento de <em>fat tails</em> es característico de activos cripto e implica que los modelos de riesgo gaussianos (VaR normal) subestiman significativamente la probabilidad de pérdidas extremas.</p>
+        <div class="insight mt-8">
+          <strong>Implicación de riesgo:</strong> Un modelo VaR al 99% gaussiano subestimaría las pérdidas reales en eventos de cola. Se recomienda usar distribuciones t-Student o modelos de simulación histórica para este activo.
+        </div>
+      </div>
+    </div>
+
+    <!-- 6.3 Boxplot años -->
+    <div class="img-card mt-24">
+      <img src="boxplot_rendimiento_anual.png" alt="Boxplot distribución rendimientos por año" loading="lazy">
+      <div class="img-caption">
+        <h4>6.3 — Distribución de Rendimientos por Año (Boxplot)</h4>
+        <p>Distribución de rendimientos diarios desglosada por año. <strong>2020 y 2021</strong> muestran mayor dispersión (cajas más amplias) y abundantes outliers positivos, reflejo del bull market post-halving. <strong>2022</strong> presenta la mayor cantidad de outliers negativos extremos, coincidiendo con el colapso de Terra/Luna (mayo) y la quiebra de FTX (noviembre). Desde <strong>2023</strong> la dispersión se reduce progresivamente, sugiriendo mayor madurez y menor volatilidad estructural del activo conforme aumenta la adopción institucional.</p>
+        <div class="insight mt-8">
+          <strong>Patrón halving:</strong> Los años posteriores a cada halving (2021, 2025) tienden a mostrar mayor dispersión positiva, consistente con la hipótesis del ciclo de 4 años de Bitcoin.
+        </div>
+      </div>
+    </div>
+
+    <!-- 6.4 Scatter volumen vs volatilidad -->
+    <div class="img-card mt-24">
+      <img src="scatter_volumen_volatilidad.png" alt="Scatter volumen vs volatilidad diaria" loading="lazy">
+      <div class="img-caption">
+        <h4>6.4 — Scatter: Volumen vs Volatilidad Diaria</h4>
+        <p>Scatter plot con volumen operado en el eje X y volatilidad diaria en el eje Y, coloreado por dirección del día (verde = alcista, rojo = bajista). La mayoría de los registros se concentran en la <strong>zona de baja volatilidad y volumen moderado</strong> (clúster inferior izquierdo). Los outliers de alta volatilidad (&gt;20%) aparecen distribuidos en todo el rango de volumen, indicando que los movimientos extremos no dependen exclusivamente de la liquidez disponible. La <strong>correlación volumen-volatilidad es 0.44</strong>, relación moderada positiva.</p>
+        <div class="insight mt-8">
+          <strong>Observación:</strong> Los días con volatilidad extrema y bajo volumen corresponden principalmente a <strong>fines de semana</strong>, donde la liquidez del mercado se reduce significativamente.
+        </div>
+      </div>
+    </div>
+
+    <!-- 6.5 Heatmap correlación -->
+    <div class="img-card mt-24">
+      <img src="correlacion_heatmap.png" alt="Heatmap matriz de correlaciones" loading="lazy">
+      <div class="img-caption">
+        <h4>6.5 — Heatmap de Correlaciones (Pearson)</h4>
+        <p>Matriz de correlación de Pearson entre todas las variables numéricas del dataset. Hallazgos principales:</p>
+        <ul style="margin:10px 0 0 16px;color:var(--muted);font-size:.83rem;line-height:1.9">
+          <li><strong style="color:var(--text)">priceOpen / High / Low / Close ≈ 1.0</strong> — esperado, son precios del mismo activo en el mismo día.</li>
+          <li><strong style="color:var(--text)">volume ↔ precio: 0.54</strong> — correlación moderada positiva; el volumen crece con el precio a largo plazo.</li>
+          <li><strong style="color:var(--text)">rendimiento_diario ↔ precio: −0.03 a 0.00</strong> — confirma que los retornos son aproximadamente estacionarios.</li>
+          <li><strong style="color:var(--text)">rango_cuerpo ↔ volume: 0.56</strong> — días de mayor movimiento de precio coinciden con mayor actividad de mercado.</li>
+        </ul>
+        <div class="insight mt-8">
+          <strong>Implicación estadística:</strong> La baja correlación de rendimiento_diario con las demás variables sugiere que el mercado es difícilmente predecible con variables rezagadas simples — consistente con la hipótesis de mercado débilmente eficiente.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 7 — CONCLUSIONES
+════════════════════════════════════════════════════════════ -->
+<section id="conclusiones">
+  <div class="container">
+    <p class="section-label">Sección 7</p>
+    <h2 class="section-title">Conclusiones</h2>
+    <p class="section-desc">Hallazgos principales derivados del análisis exploratorio del histórico de Bitcoin 2018–2026.</p>
+
+    <ul class="conclusion-list mt-24">
+      <li>
+        <div class="ci">📊</div>
+        <p><strong>Sesgo alcista leve con riesgo asimétrico</strong> Bitcoin presenta un sesgo positivo del 51.11% de días alcistas, pero la distribución de retornos es leptocúrtica con cola izquierda hasta −37%, lo que implica que las caídas extremas son más severas que los rallies equivalentes. Los modelos de riesgo gaussianos subestiman el riesgo real.</p>
+      </li>
+      <li>
+        <div class="ci">🔄</div>
+        <p><strong>Ciclos bull/bear de aproximadamente 2 años</strong> Se identifican claramente los ciclos 2018 (bajista), 2019–2021 (alcista), 2022 (bajista severo −70%), 2023–2025 (alcista con nuevo ATH). Los halvings de Bitcoin actúan como catalizadores de los ciclos alcistas con un retraso aproximado de 6–12 meses.</p>
+      </li>
+      <li>
+        <div class="ci">🎯</div>
+        <p><strong>La señal MA7 vs MA30 es efectiva como indicador de tendencia</strong> Los Golden Cross y Death Cross anticiparon correctamente los grandes movimientos de tendencia en 2019, 2020 y 2023. La señal actual es COMPRA con MA7 ($79,939) superior a MA30 ($76,662). Es más confiable como confirmador que como predictor de entrada precisa.</p>
+      </li>
+      <li>
+        <div class="ci">📅</div>
+        <p><strong>Estacionalidad mensual y semanal clara</strong> Febrero, marzo y octubre son históricamente los meses más rentables. Junio y agosto tienden a ser negativos. A nivel semanal, miércoles y lunes concentran mayor rendimiento promedio. El volumen se reduce significativamente los fines de semana, aumentando la volatilidad sin liquidez de soporte.</p>
+      </li>
+      <li>
+        <div class="ci">📉</div>
+        <p><strong>La volatilidad estructural disminuye con el tiempo</strong> La volatilidad promedio cayó del &gt;6% en 2018–2019 a ~3% en 2025–2026. Esto refleja la creciente adopción institucional (ETFs spot aprobados en 2024), mayor profundidad de mercado y maduración del activo como clase de inversión.</p>
+      </li>
+      <li>
+        <div class="ci">💧</div>
+        <p><strong>Correlación moderada precio-volumen (0.54)</strong> El mercado no es puramente especulativo: existe relación real entre actividad de mercado y precio a largo plazo. Sin embargo, los movimientos extremos de precio no siempre están acompañados de alto volumen, especialmente en eventos de liquidaciones masivas o fines de semana.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECCIÓN 8 — DECISIONES A TOMAR
+════════════════════════════════════════════════════════════ -->
+<section id="decisiones">
+  <div class="container">
+    <p class="section-label">Sección 8 · Minería de Datos Aplicada</p>
+    <h2 class="section-title">Decisiones a Tomar</h2>
+    <p class="section-desc">
+      Basado en el análisis exploratorio, los patrones de minería de datos y las métricas calculadas sobre 2,794 registros diarios, se derivan las siguientes recomendaciones accionables para un inversor o analista que trabaje con Bitcoin.
+    </p>
+
+    <!-- Cards de decisión -->
+    <div class="decision-grid">
+
+      <div class="decision-card dc-buy">
+        <div class="dc-header">
+          <div class="dc-icon">🟢</div>
+          <div class="dc-title">Decisión de Entrada</div>
+          <span class="dc-badge badge-buy">COMPRA</span>
+        </div>
+        <p>La señal actual de cruce de medias móviles es <strong style="color:var(--green)">COMPRA (Golden Cross)</strong> — MA7 ($79,939) supera a MA30 ($76,662). Históricamente este patrón en 2019, 2020 y 2023 precedió rallies de semanas a meses. El precio actual ($80,186) se ubica por encima de ambas medias, confirmando tendencia alcista de corto y medio plazo. <strong style="color:var(--text)">Acción: considerar entrada escalonada en correcciones hacia el soporte de MA30.</strong></p>
+      </div>
+
+      <div class="decision-card dc-risk">
+        <div class="dc-header">
+          <div class="dc-icon">🔴</div>
+          <div class="dc-title">Gestión del Riesgo</div>
+          <span class="dc-badge badge-risk">CRÍTICO</span>
+        </div>
+        <p>La distribución de retornos es leptocúrtica con cola izquierda hasta <strong style="color:var(--red)">−37%</strong>. Los modelos VaR gaussianos subestiman el riesgo real. En 2022 Bitcoin cayó un 70% desde máximos. <strong style="color:var(--text)">Acción: nunca invertir más del 5–10% del portafolio total en un activo de esta volatilidad (4.13% diario promedio). Establecer stop-loss en ruptura de MA30.</strong></p>
+      </div>
+
+      <div class="decision-card dc-time">
+        <div class="dc-header">
+          <div class="dc-icon">📅</div>
+          <div class="dc-title">Timing por Estacionalidad</div>
+          <span class="dc-badge badge-time">ESTACIONAL</span>
+        </div>
+        <p>El análisis de rendimientos promedio por mes revela patrones repetibles: <strong style="color:var(--green)">febrero, marzo y octubre</strong> son históricamente los meses más rentables. <strong style="color:var(--red)">Junio y agosto</strong> tienden a ser negativos ("crypto summer dip"). <strong style="color:var(--text)">Acción: ponderar entradas en enero-febrero y reducir exposición en mayo-junio para aprovechar la estacionalidad.</strong></p>
+      </div>
+
+      <div class="decision-card dc-wait">
+        <div class="dc-header">
+          <div class="dc-icon">⚡</div>
+          <div class="dc-title">Monitoreo de Volatilidad</div>
+          <span class="dc-badge badge-wait">ALERTA</span>
+        </div>
+        <p>La volatilidad promedio es 4.13% diaria pero puede alcanzar picos de <strong style="color:var(--red)">38.78%</strong> en eventos extremos. Los fines de semana concentran mayor volatilidad con menor volumen de soporte — mayor riesgo de movimientos manipulados. <strong style="color:var(--text)">Acción: evitar órdenes de mercado grandes en fines de semana y usar límites de precio en todos los trades.</strong></p>
+      </div>
+
+      <div class="decision-card dc-port">
+        <div class="dc-header">
+          <div class="dc-icon">💼</div>
+          <div class="dc-title">Estrategia de Portafolio</div>
+          <span class="dc-badge badge-port">LARGO PLAZO</span>
+        </div>
+        <p>El retorno acumulado desde agosto 2018 supera el 1,100% a pesar de ciclos bajistas severos. Con 51.11% de días alcistas y MA7 por encima de MA30, la estrategia <strong style="color:var(--text)">DCA (Dollar Cost Averaging)</strong> mensual históricamente habría superado al timing activo. <strong style="color:var(--text)">Acción: para horizonte &gt;2 años, DCA mensual en correcciones &gt;15% desde máximos recientes.</strong></p>
+      </div>
+
+      <div class="decision-card dc-mon">
+        <div class="dc-header">
+          <div class="dc-icon">📊</div>
+          <div class="dc-title">Indicadores a Monitorear</div>
+          <span class="dc-badge badge-mon">CONTINUO</span>
+        </div>
+        <p>Los 3 indicadores clave derivados del análisis son: <strong style="color:var(--text)">(1)</strong> Cruce MA7 vs MA30 para señal de tendencia. <strong style="color:var(--text)">(2)</strong> Volumen diario relativo — caídas con alto volumen son más peligrosas. <strong style="color:var(--text)">(3)</strong> Volatilidad diaria — superar el 10% en día bajista activa alerta de corrección mayor. <strong style="color:var(--text)">Acción: revisar estos 3 indicadores semanalmente.</strong></p>
+      </div>
+
+    </div>
+
+    <!-- Tabla resumen de decisiones -->
+    <div class="card mt-32">
+      <h3 class="fw-600" style="margin-bottom:16px">Resumen de Decisiones — Matriz de Acción</h3>
+      <div class="table-wrap">
+        <table class="dm-table">
+          <thead>
+            <tr>
+              <th>Decisión</th>
+              <th>Evidencia del análisis</th>
+              <th>Acción concreta</th>
+              <th>Horizonte</th>
+              <th>Prioridad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Evaluar entrada</strong></td>
+              <td>Golden Cross activo, MA7 &gt; MA30, precio sobre ambas medias</td>
+              <td>Entrada escalonada 25% en soporte MA30 (~$76,662)</td>
+              <td>1–3 meses</td>
+              <td><span class="priority p-alta">Alta</span></td>
+            </tr>
+            <tr>
+              <td><strong>Definir stop-loss</strong></td>
+              <td>Caídas históricas hasta −70% (2022), fat tails confirmados</td>
+              <td>Stop-loss en cierre semanal bajo MA30</td>
+              <td>Inmediato</td>
+              <td><span class="priority p-alta">Alta</span></td>
+            </tr>
+            <tr>
+              <td><strong>Limitar exposición</strong></td>
+              <td>Volatilidad 4.13% diaria, distribución asimétrica</td>
+              <td>Máximo 10% del portafolio total en BTC</td>
+              <td>Permanente</td>
+              <td><span class="priority p-alta">Alta</span></td>
+            </tr>
+            <tr>
+              <td><strong>Aprovechar estacionalidad</strong></td>
+              <td>Feb, Mar, Oct positivos histórico; Jun, Ago negativos</td>
+              <td>Aumentar posición en enero; reducir en mayo</td>
+              <td>Anual</td>
+              <td><span class="priority p-media">Media</span></td>
+            </tr>
+            <tr>
+              <td><strong>Implementar DCA</strong></td>
+              <td>Retorno acumulado +1,100% pese a ciclos bajistas</td>
+              <td>Compra fija mensual, doblar en correcciones &gt;20%</td>
+              <td>&gt;2 años</td>
+              <td><span class="priority p-media">Media</span></td>
+            </tr>
+            <tr>
+              <td><strong>Monitorear volumen</strong></td>
+              <td>Correlación volumen-precio 0.54; outliers en bajo volumen</td>
+              <td>Alerta si volumen diario cae &gt;40% respecto promedio</td>
+              <td>Semanal</td>
+              <td><span class="priority p-media">Media</span></td>
+            </tr>
+            <tr>
+              <td><strong>Evitar operar en fin de semana</strong></td>
+              <td>Mayor volatilidad y menor volumen sábado y domingo</td>
+              <td>No ejecutar órdenes grandes entre viernes 22h y lunes 8h</td>
+              <td>Operativo</td>
+              <td><span class="priority p-baja">Baja</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Advertencia académica -->
+    <div class="insight mt-24" style="border-color:var(--red);background:rgba(248,81,73,.06)">
+      <strong style="color:var(--red)">Nota académica:</strong> Las decisiones presentadas se derivan exclusivamente del análisis estadístico y de minería de datos del histórico de precios. <strong style="color:var(--text)">No constituyen asesoría financiera.</strong> El rendimiento pasado no garantiza resultados futuros. Bitcoin es un activo de alto riesgo con posibilidad de pérdida total del capital invertido. Este análisis fue realizado con fines académicos en el contexto del curso de Minería de Datos.
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <p style="margin-bottom:10px;font-weight:600;color:var(--text)">
+      Favio Alejandro Bernal González &nbsp;·&nbsp; Luisa María López Rigeles &nbsp;·&nbsp;
+      Carlos Andrés Lamus Gómez &nbsp;·&nbsp; Kevin Santiago Cachaya Collazos &nbsp;·&nbsp;
+      Juan Esteban Roncancio Cárdenas
+    </p>
+    <p>
+      Dataset: <span>bitcoin_clean.csv</span> &nbsp;·&nbsp;
+      Período: <span>2018-08-22 → 2026-05-08</span> &nbsp;·&nbsp;
+      Registros: <span>2,794</span> &nbsp;·&nbsp;
+      <a href="https://app.powerbi.com/view?r=eyJrIjoiOWQyZDE1OTktOGQyNC00NGE0LTg0M2MtYTg2YTQ5ZTI4MjQxIiwidCI6IjZjYTM0YWUxLTQ2NmYtNDRiYy1hN2FhLTBhYzVhNzhjNjFiMSIsImMiOjR9" target="_blank" style="color:var(--orange)">Ver Tablero Power BI ↗</a>
+    </p>
+    <p style="margin-top:8px;font-size:.75rem;opacity:.5">Bitcoin Analytics Dashboard · Proyecto Final Minería de Datos · Gustavo Santos Vargas · Universidad Libre</p>
+  </div>
+</footer>
+
+<script>
+  /* Oculta el placeholder cuando el iframe carga una URL real */
+  document.querySelectorAll('.iframe-wrap iframe').forEach(iframe => {
+    iframe.addEventListener('load', () => {
+      if (iframe.src && iframe.src !== window.location.href) {
+        const ph = iframe.parentElement.querySelector('.iframe-placeholder');
+        if (ph) ph.style.display = 'none';
+      }
+    });
+  });
+</script>
+</body>
+</html>
