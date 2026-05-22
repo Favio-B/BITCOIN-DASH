@@ -316,7 +316,6 @@
 <nav>
   <div class="nav-brand"><span>₿</span> BTC Dashboard</div>
   <a href="#dataset">Dataset</a>
-  <a href="#marco">Marco Teórico</a>
   <a href="#rendimientos">Rendimientos</a>
   <a href="#senales">Señales</a>
   <a href="#precio">Precio</a>
@@ -514,110 +513,6 @@
       </div>
     </div>
 
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════════════════════════
-     SECCIÓN 1.5 — MARCO TEÓRICO
-════════════════════════════════════════════════════════════ -->
-<section id="marco">
-  <div class="container">
-    <p class="section-label">Sección 1.5 · Fundamentos Teóricos</p>
-    <h2 class="section-title">Marco Teórico: Minería de Datos</h2>
-    <p class="section-desc">Curso: Minería de Datos — <strong style="color:var(--text)">Gustavo Santos Vargas</strong> · Universidad Libre</p>
-
-    <div class="card-grid card-grid-2">
-
-      <!-- CRISP-DM -->
-      <div class="card" style="border-top:3px solid var(--orange)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <h3 class="fw-600" style="font-size:.95rem">Metodología CRISP-DM Aplicada</h3>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;font-size:.82rem">
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="background:var(--orange);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">1</span>
-            <div><strong style="color:var(--text)">Comprensión del negocio</strong><span style="color:var(--muted)"> — Análisis del mercado Bitcoin y sus ciclos de precio.</span></div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="background:var(--blue);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">2</span>
-            <div><strong style="color:var(--text)">Comprensión de los datos</strong><span style="color:var(--muted)"> — Exploración del dataset histórico 2018–2026 con 2,794 registros.</span></div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="background:var(--purple);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">3</span>
-            <div><strong style="color:var(--text)">Preparación de datos</strong><span style="color:var(--muted)"> — Limpieza, feature engineering, cálculo de indicadores técnicos.</span></div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="background:var(--green);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">4</span>
-            <div><strong style="color:var(--text)">Modelado</strong><span style="color:var(--muted)"> — Señales MA, análisis estadístico, correlaciones, distribuciones.</span></div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="background:var(--yellow);color:#000;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">5</span>
-            <div><strong style="color:var(--text)">Evaluación</strong><span style="color:var(--muted)"> — Validación de patrones estacionales y señales de cruce de medias.</span></div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="background:var(--red);color:#fff;font-weight:700;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">6</span>
-            <div><strong style="color:var(--text)">Despliegue</strong><span style="color:var(--muted)"> — Este dashboard interactivo con Power BI y Python.</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Preprocesamiento semanas 3-4 -->
-      <div class="card" style="border-top:3px solid var(--blue)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <h3 class="fw-600" style="font-size:.95rem">Preprocesamiento Aplicado</h3>
-        </div>
-        <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
-          Se aplicaron: <strong style="color:var(--text)">eliminación de duplicados</strong> (0 encontrados), <strong style="color:var(--text)">validación de formatos</strong>, <strong style="color:var(--text)">manejo del único nulo</strong> en <code>rendimiento_vs_anterior</code> e <strong style="color:var(--text)">ingeniería de características</strong> generando <strong style="color:var(--orange)">12 variables derivadas</strong> a partir de fecha y precio.
-        </p>
-      </div>
-
-      <!-- Estadístico descriptivo -->
-      <div class="card" style="border-top:3px solid var(--green)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <h3 class="fw-600" style="font-size:.95rem">Análisis Estadístico Descriptivo</h3>
-        </div>
-        <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
-          Se calcularon media (+0.13%), σ = 3.24%, <strong style="color:var(--text)">asimetría negativa</strong> (mínimo −37.19%) y <strong style="color:var(--text)">curtosis positiva</strong> (distribución leptocúrtica — fat tails). Se aplicó detección de outliers vía IQR; 2020–2021 presentan mayor dispersión y 2022 la mayor concentración de extremos negativos.
-        </p>
-      </div>
-
-      <!-- Series de tiempo -->
-      <div class="card" style="border-top:3px solid var(--purple)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <h3 class="fw-600" style="font-size:.95rem">Minería de Series de Tiempo</h3>
-        </div>
-        <p style="font-size:.83rem;color:var(--muted);line-height:1.75">
-          Serie de tiempo con cuatro componentes: <strong style="color:var(--text)">Tendencia</strong> (de $3,236 a $124,752), <strong style="color:var(--text)">Ciclos</strong> bull/bear ~2 años ligados a halvings, <strong style="color:var(--text)">Estacionalidad</strong> mensual/semanal e <strong style="color:var(--text)">Irregulares</strong> (COVID 2020, Terra/Luna 2022, FTX 2022). Las MA7 y MA30 actúan como suavizamiento y generación de señales.
-        </p>
-      </div>
-
-      <!-- Dispersión y correlación -->
-      <div class="card" style="border-top:3px solid var(--yellow);grid-column:1/-1">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <h3 class="fw-600" style="font-size:.95rem">Diagrama de Dispersión y Correlación</h3>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:.83rem">
-          <div>
-            <p style="color:var(--muted);line-height:1.75">Correlación de Pearson entre variables numéricas: <strong style="color:var(--text)">volumen ↔ volatilidad (r = 0.44)</strong> y <strong style="color:var(--text)">precio ↔ volumen (r = 0.54)</strong> muestran relaciones positivas moderadas. El scatter volumen vs volatilidad confirma la relación con outliers en eventos extremos.</p>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
-              <span style="color:var(--muted)">priceClose ↔ priceOpen</span><strong style="color:var(--green)">r ≈ 1.00</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
-              <span style="color:var(--muted)">volume ↔ precio</span><strong style="color:var(--blue)">r = 0.54</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
-              <span style="color:var(--muted)">volume ↔ volatilidad</span><strong style="color:var(--yellow)">r = 0.44</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:8px 12px;border-radius:6px">
-              <span style="color:var(--muted)">rendimiento ↔ precio</span><strong style="color:var(--muted)">r ≈ 0.00</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </div>
 </section>
 
