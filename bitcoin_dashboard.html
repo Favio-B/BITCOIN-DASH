@@ -378,71 +378,40 @@
           <div class="step">
             <div class="step-icon">1</div>
             <div class="step-body">
-              <h4>Extracción de temporalidad</h4>
-              <p>Desde la columna <code>fecha</code> se extrajeron: año, trimestre, mes, nombre_mes, dia, dia_semana, nombre_dia y semana_año.</p>
+              <h4>Carga y conversión de fechas</h4>
+              <p>Los datos originales venían de un Excel con timestamps en formato Unix en milisegundos. Se convirtieron a fechas legibles con <code>pd.to_datetime(unit='ms')</code>. A partir de esa fecha se extrajeron 8 columnas nuevas: año, trimestre, mes, nombre del mes, día, día de semana, nombre del día y semana del año — para poder analizar patrones temporales. Finalmente el dataset se ordenó cronológicamente de forma ascendente.</p>
             </div>
           </div>
           <div class="step">
             <div class="step-icon">2</div>
             <div class="step-body">
-              <h4>Rendimiento diario</h4>
-              <p>Calculado como variación porcentual del <code>priceClose</code> respecto al día anterior: <code>(Close_t / Close_{t-1} - 1) × 100</code></p>
+              <h4>Feature Engineering — 7 variables calculadas</h4>
+              <p>Los datos originales solo traían precio y volumen. Se calcularon 7 features nuevos para el análisis de comportamiento:</p>
+              <ul style="margin:8px 0 0 4px;display:flex;flex-direction:column;gap:5px;font-size:.82rem;color:var(--muted)">
+                <li><strong style="color:var(--text)">rendimiento_diario</strong> — (Close − Open) / Open × 100. Variación % del día.</li>
+                <li><strong style="color:var(--text)">volatilidad_diaria</strong> — (High − Low) / Open × 100. Agitación del mercado en el día.</li>
+                <li><strong style="color:var(--text)">rango_cuerpo</strong> — |Close − Open| en USD. Complementa la volatilidad en términos de precio.</li>
+                <li><strong style="color:var(--text)">direccion</strong> — Binaria: 1 = alcista, 0 = bajista. Base para calcular % de días positivos.</li>
+                <li><strong style="color:var(--text)">media_movil_7d / 30d</strong> — Promedio de cierre de los últimos 7 y 30 días con <code>rolling().mean()</code>. Base del sistema de señales.</li>
+                <li><strong style="color:var(--text)">rendimiento_vs_anterior</strong> — Cierre hoy vs cierre ayer con <code>pct_change() × 100</code>. Diferente al rendimiento diario: ese es cierre vs apertura del mismo día.</li>
+              </ul>
             </div>
           </div>
           <div class="step">
             <div class="step-icon">3</div>
             <div class="step-body">
-              <h4>Volatilidad diaria</h4>
-              <p>Rango porcentual High-Low respecto al Open: <code>(High - Low) / Open × 100</code></p>
+              <h4>Limpieza y validación</h4>
+              <p><strong style="color:var(--text)">Nulos:</strong> 1 único nulo en <code>rendimiento_vs_anterior</code> del primer registro (2018-08-22) — no existe día anterior. Decisión: conservarlo como NaN sin imputar para no distorsionar la distribución de retornos.</p>
+              <p style="margin-top:6px"><strong style="color:var(--text)">Duplicados:</strong> 0 fechas duplicadas en 2,794 registros.</p>
+              <p style="margin-top:6px"><strong style="color:var(--text)">Outliers:</strong> detectados con dos métodos — IQR sobre el precio de cierre y Z-score (|z| &gt; 3) sobre rendimiento y volumen. Decisión: documentar sin eliminar, ya que los valores extremos como el crash de −37% o el rally de +18% son eventos reales, no errores de medición.</p>
             </div>
           </div>
           <div class="step">
             <div class="step-icon">4</div>
             <div class="step-body">
-              <h4>Rango de cuerpo y dirección</h4>
-              <p>Rango_cuerpo = |Close - Open|. Dirección: binario 1=alcista si Close &gt; Open, 0=bajista.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-icon">5</div>
-            <div class="step-body">
-              <h4>Medias móviles</h4>
-              <p>MA7 y MA30 calculadas como media simple de los últimos 7 y 30 días del <code>priceClose</code>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-icon">6</div>
-            <div class="step-body">
-              <h4>Validación y limpieza inicial</h4>
-              <p>Se verificó ausencia de duplicados (0 encontrados en 2,794 registros). Se corrigió la codificación UTF-8 con BOM (<code>utf-8-sig</code>) que afectaba columnas con caracteres especiales (<code>año</code>, <code>semana_año</code>). Se detectó y conservó el único valor nulo en <code>rendimiento_vs_anterior</code> (fila 1, sin día previo). Se aplicó detección de outliers con IQR sobre <code>rendimiento_diario</code>: rango válido ≈ [−11.8%, +13.4%]; valores extremos documentados sin eliminación (fat tails de Bitcoin).</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-icon">7</div>
-            <div class="step-body">
-              <h4>Estadísticas descriptivas calculadas</h4>
-              <p>Para cada variable numérica se computaron: media (μ), desviación estándar (σ), mediana, moda, coeficiente de asimetría (skewness) y curtosis (kurtosis). Hallazgo clave: <code>rendimiento_diario</code> presenta asimetría ≈ −0.18 (ligera cola izquierda) y curtosis ≈ 10.4 (distribución leptocúrtica — colas mucho más gordas que la normal), lo que confirma el riesgo de eventos extremos en Bitcoin.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-icon">8</div>
-            <div class="step-body">
-              <h4>Matriz de correlación (Pearson)</h4>
-              <p>Se calculó la correlación de Pearson entre todas las variables numéricas. Correlaciones destacadas: <code>priceClose</code> ↔ <code>media_movil_7d</code> = <strong>0.999</strong>; <code>priceClose</code> ↔ <code>media_movil_30d</code> = <strong>0.997</strong>; <code>volatilidad_diaria</code> ↔ <code>rango_cuerpo</code> = <strong>0.81</strong>; <code>rendimiento_diario</code> ↔ <code>direccion</code> = <strong>0.73</strong>. Correlación rendimiento ↔ precio prácticamente nula (−0.02), confirmando independencia entre nivel de precio y retorno diario.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-icon">9</div>
-            <div class="step-body">
-              <h4>Clasificación de variables</h4>
-              <p>Las 21 columnas se clasificaron según la taxonomía del curso: <strong>Numérica Continua</strong> (precios OHLC, volumen, rendimiento, volatilidad, medias móviles — 9 vars), <strong>Numérica Discreta</strong> (año, mes, día, trimestre, semana_año — 5 vars), <strong>Categórica</strong> (nombre_mes, nombre_dia — 2 vars), <strong>Binaria</strong> (dirección alcista/bajista — 1 var), <strong>Fecha/Tiempo</strong> (fecha — 1 var), <strong>Feature ingeniería</strong> (rango_cuerpo, rendimiento_vs_anterior — 2 vars derivadas).</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-icon">10</div>
-            <div class="step-body">
-              <h4>Manejo del único valor nulo</h4>
-              <p>La columna <code>rendimiento_vs_anterior</code> presenta exactamente 1 valor nulo en el primer registro (2018-08-22) porque no existe día anterior de referencia. Decisión: <strong>se conserva como NaN</strong> sin imputar, ya que imputar con 0 o con la media distorsionaría la distribución de retornos. En análisis estadísticos se excluye automáticamente mediante <code>dropna()</code>; Power BI lo trata como BLANK() en DAX sin afectar agregaciones.</p>
+              <h4>Estadísticas descriptivas y exportación</h4>
+              <p>Se calcularon estadísticas completas con <code>describe()</code> sobre las 8 variables numéricas principales. Se complementó con skewness (≈ −0.18) y kurtosis (≈ 10.4) via <code>scipy.stats</code> — métricas clave para detectar la distribución leptocúrtica de los retornos.</p>
+              <p style="margin-top:6px">El dataset limpio se exportó como <code>bitcoin_clean.csv</code> con 21 columnas ordenadas (temporales → OHLC → volumen → features). Se usó encoding <code>utf-8-sig</code> para que Power BI interpretara correctamente columnas con caracteres especiales como <code>año</code> y <code>semana_año</code>.</p>
             </div>
           </div>
         </div>
