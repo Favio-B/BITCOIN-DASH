@@ -373,6 +373,24 @@
         </div>
       </div>
       <div class="card">
+        <h3 class="fw-600" style="margin-bottom:16px">💬 Preguntas clave sobre el dataset</h3>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+            <p style="font-size:.78rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">¿Por qué Bitcoin como tema?</p>
+            <p style="font-size:.85rem;color:var(--muted);line-height:1.7">Porque es el activo financiero con más datos públicos disponibles, <strong style="color:var(--text)">alta volatilidad</strong> y ciclos claros — ideal para aplicar minería de datos y encontrar patrones reales.</p>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+            <p style="font-size:.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">¿Qué es un timestamp Unix en milisegundos?</p>
+            <p style="font-size:.85rem;color:var(--muted);line-height:1.7">Es una forma de representar fechas como un número entero — los milisegundos transcurridos desde el 1 de enero de 1970. Se convirtió con <code>pd.to_datetime(col, unit='ms')</code>.</p>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+            <p style="font-size:.78rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">¿Por qué no eliminaron los outliers?</p>
+            <p style="font-size:.85rem;color:var(--muted);line-height:1.7">Porque en Bitcoin los eventos extremos son reales — el crash de COVID de <strong style="color:var(--red)">−37%</strong>, los rallies de <strong style="color:var(--green)">+18%</strong>. No son errores de medición, son los eventos más importantes del dataset.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <h3 class="fw-600" style="margin-bottom:12px">⚙️ Preprocesamiento Aplicado</h3>
         <div class="steps">
           <div class="step">
