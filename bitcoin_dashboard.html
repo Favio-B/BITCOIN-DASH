@@ -356,7 +356,7 @@
     <h2 class="section-title">Sobre el Dataset y Preprocesamiento</h2>
     <p class="section-desc">Descripción completa de la fuente de datos, columnas disponibles y las transformaciones aplicadas para preparar el dataset de análisis.</p>
 
-    <div class="card-grid card-grid-2">
+    <div class="card-grid" style="grid-template-columns:1fr">
       <div class="card">
         <h3 class="fw-600" style="margin-bottom:12px">📦 Descripción del Dataset</h3>
         <p style="color:var(--muted);font-size:.88rem">
@@ -460,27 +460,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td><strong>fecha</strong></td><td><span class="tag tag-date">DateTime</span></td><td>Numérica Discreta</td><td>Fecha del registro diario</td></tr>
-          <tr><td><strong>año</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Año extraído de la fecha</td></tr>
-          <tr><td><strong>trimestre</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Trimestre (1–4)</td></tr>
-          <tr><td><strong>mes</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Mes numérico (1–12)</td></tr>
-          <tr><td><strong>nombre_mes</strong></td><td><span class="tag tag-cat">String</span></td><td>Categórica</td><td>Nombre del mes en inglés</td></tr>
-          <tr><td><strong>dia</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Día del mes (1–31)</td></tr>
-          <tr><td><strong>dia_semana</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Día de la semana (0=lunes)</td></tr>
-          <tr><td><strong>nombre_dia</strong></td><td><span class="tag tag-cat">String</span></td><td>Categórica</td><td>Nombre del día en inglés</td></tr>
-          <tr><td><strong>semana_año</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Semana del año (1–53)</td></tr>
-          <tr><td><strong>priceOpen</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio de apertura diario (USD)</td></tr>
-          <tr><td><strong>priceHigh</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio máximo del día (USD)</td></tr>
-          <tr><td><strong>priceLow</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio mínimo del día (USD)</td></tr>
-          <tr><td><strong>priceClose</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precio de cierre diario (USD)</td></tr>
+          <tr><td><strong>fecha</strong></td><td><span class="tag tag-date">DateTime</span></td><td>Fecha/Tiempo</td><td>Fecha del registro diario</td></tr>
+          <tr><td><strong>año / trimestre / mes / dia</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Componentes temporales extraídos de la fecha</td></tr>
+          <tr><td><strong>nombre_mes / nombre_dia</strong></td><td><span class="tag tag-cat">String</span></td><td>Categórica</td><td>Nombre del mes y día de la semana</td></tr>
+          <tr><td><strong>dia_semana / semana_año</strong></td><td><span class="tag tag-num">Int</span></td><td>Numérica Discreta</td><td>Día de la semana (0=lunes) y semana del año</td></tr>
+          <tr><td><strong>priceOpen / High / Low / Close</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Precios OHLC del día en USD</td></tr>
           <tr><td><strong>volume</strong></td><td><span class="tag tag-num">Float</span></td><td>Numérica Continua</td><td>Volumen operado en USD</td></tr>
-          <tr><td><strong>rendimiento_diario</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Variación % del priceClose respecto al día anterior</td></tr>
+          <tr><td><strong>rendimiento_diario</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Variación % del priceClose respecto a la apertura</td></tr>
           <tr><td><strong>volatilidad_diaria</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Rango % High-Low respecto al Open</td></tr>
-          <tr><td><strong>rango_cuerpo</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Diferencia absoluta |Close - Open|</td></tr>
+          <tr><td><strong>rango_cuerpo</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Diferencia absoluta |Close - Open| en USD</td></tr>
           <tr><td><strong>direccion</strong></td><td><span class="tag tag-bool">Binario</span></td><td>Categórica</td><td>1 = alcista (Close &gt; Open), 0 = bajista</td></tr>
-          <tr><td><strong>media_movil_7d</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Media móvil simple 7 días del priceClose</td></tr>
-          <tr><td><strong>media_movil_30d</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Media móvil simple 30 días del priceClose</td></tr>
-          <tr><td><strong>rendimiento_vs_anterior</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Rendimiento del día vs día anterior (1 nulo en día 1)</td></tr>
+          <tr><td><strong>media_movil_7d / 30d</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Medias móviles simples de 7 y 30 días del priceClose</td></tr>
+          <tr><td><strong>rendimiento_vs_anterior</strong></td><td><span class="tag tag-feat">Feature</span></td><td>Numérica Continua</td><td>Cambio % respecto al cierre del día anterior (1 nulo)</td></tr>
         </tbody>
       </table>
     </div>
